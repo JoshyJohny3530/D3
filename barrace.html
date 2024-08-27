@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>COVID-19 Top 10 Countries</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="./css/styles.css">
+</head>
+
+<body>
+    <h1>COVID-19 Data Visualizations</h1>
+    <div id="navbar-container"></div>
+
+    <div class="container">
+        <p class="std-name">Nibin M (8890966)</p>
+        <div id="data-type-container">
+            <label for="data-type">Select Data Type:</label>
+            <select id="data-type">
+                <option value="confirmed">Confirmed Cases</option>
+                <option value="deaths">Deaths</option>
+                <option value="recovered">Recovered</option>
+            </select>
+        </div>
+        <div id="chart"></div>
+    </div>
+
+    <script>
+        const margin = { top: 20, right: 20, bottom: 30, left: 60 };
+        const width = 640 - margin.left - margin.right;
+        const height = 400 - margin.top - margin.bottom;
+
+        const svg = d3.select("#chart")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const x = d3.scaleBand().range([0, width]).padding(0.1);
+        const y = d3.scaleLinear().range([height, 0]);
+
+        const xAxis = svg.append("g")
+            .attr("transform", `translate(0,${height})`);
+
+        const yAxis = svg.append("g");
+
+        d3.csv("./data/covid_data.csv").then(data => {
+            data.forEach(d => {
+                d.confirmed = +d.Confirmed;
+                d.deaths = +d.Deaths;
+                d.recovered = +d.Recovered;
+            });
+
+            function updateChart(dataType) {
+                const top10Data = data.sort((a, b) => b[dataType] - a[dataType]).slice(0, 10);
+
+                x.domain(top10Data.map(d => d.Country));
+                y.domain([0, d3.max(top10Data, d => d[dataType])]).nice();
+
+                const bars = svg.selectAll(".bar")
+                    .data(top10Data, d => d.Country);
+
+                bars.enter()
+                    .append("rect")
+                    .attr("class", "bar")
+                    .attr("x", d => x(d.Country))
+                    .attr("y", y(0))
+                    .attr("height", 0)
+                    .attr("width", x.bandwidth())
+                    .attr("fill", "steelblue")
+                    .merge(bars)
+                    .transition()
+                    .duration(750)
+                    .attr("x", d => x(d.Country))
+                    .attr("y", d => y(d[dataType]))
+                    .attr("height", d => y(0) - y(d[dataType]))
+                    .attr("width", x.bandwidth());
+
+                bars.exit().transition()
+                    .duration(750)
+                    .attr("y", y(0))
+                    .attr("height", 0)
+                    .remove();
+
+                xAxis.transition().duration(750).call(d3.axisBottom(x));
+                yAxis.transition().duration(750).call(d3.axisLeft(y).ticks(6).tickFormat(d3.format(".2s")));
+            }
+
+            updateChart("confirmed");
+
+            d3.select("#data-type").on("change", function () {
+                const selectedType = this.value;
+                updateChart(selectedType);
+            });
+        });
+    </script>
+</body>
+<script src="./js/navbar.js"></script>
+
+
+</html>

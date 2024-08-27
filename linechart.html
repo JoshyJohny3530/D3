@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>COVID-19 Multiline Chart</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="./css/styles.css">
+    <style>
+        .line {
+            fill: none;
+            stroke-width: 2;
+        }
+
+        .label {
+            font-size: 12px;
+            text-anchor: start;
+        }
+
+        .legend {
+            font-size: 12px;
+            text-anchor: start;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>COVID-19 Data Visualizations</h1>
+    <div id="navbar-container"></div>
+
+    <div class="container">
+        <p class="std-name">Nibin M (8890966)</p>
+        <div id="chart"></div>
+    </div>
+
+    <script>
+        const width = 928;
+        const height = 600;
+        const marginTop = 20;
+        const marginRight = 20;
+        const marginBottom = 80;
+        const marginLeft = 60;
+
+        const svg = d3.select("#chart")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .attr("viewBox", [0, 0, width, height])
+            .attr("style", "max-width: 100%; height: auto; overflow: visible; font: 10px sans-serif;");
+
+        const x = d3.scaleBand().range([marginLeft, width - marginRight]).padding(0.1);
+        const y = d3.scaleLinear().range([height - marginBottom, marginTop]);
+
+        const color = d3.scaleOrdinal(d3.schemeCategory10);
+
+        const line = d3.line()
+            .x(d => x(d.Country) + x.bandwidth() / 2)
+            .y(d => y(d.value));
+
+        d3.csv("./data/covid_data.csv").then(data => {
+            data.forEach(d => {
+                d.Confirmed = +d.Confirmed;
+                d.Deaths = +d.Deaths;
+                d.Recovered = +d.Recovered;
+            });
+
+            const countries = Array.from(new Set(data.map(d => d.Country)));
+
+            const top20Countries = countries
+                .map(Country => ({
+                    Country,
+                    Confirmed: d3.sum(data.filter(d => d.Country === Country), d => d.Confirmed)
+                }))
+                .sort((a, b) => d3.descending(a.Confirmed, b.Confirmed))
+                .slice(0, 20)
+                .map(d => d.Country);
+
+            const filteredData = data.filter(d => top20Countries.includes(d.Country));
+
+            x.domain(top20Countries);
+            y.domain([0, 5000000]);
+
+            svg.append("g")
+                .attr("transform", `translate(0,${height - marginBottom})`)
+                .call(d3.axisBottom(x).tickSizeOuter(0))
+                .selectAll("text")
+                .attr("transform", "rotate(-45)")
+                .style("text-anchor", "end");
+
+            svg.append("g")
+                .attr("transform", `translate(${marginLeft},0)`)
+                .call(d3.axisLeft(y))
+                .call(g => g.select(".domain").remove())
+                .call(g => g.selectAll(".tick line").clone()
+                    .attr("x2", width - marginLeft - marginRight)
+                    .attr("stroke-opacity", 0.1))
+                .call(g => g.append("text")
+                    .attr("x", -marginLeft)
+                    .attr("y", 10)
+                    .attr("fill", "currentColor")
+                    .attr("text-anchor", "start")
+                    .text("Number of Cases"));
+
+            const metrics = ["Confirmed", "Deaths", "Recovered"];
+
+            metrics.forEach(metric => {
+                const dataByMetric = top20Countries.map(Country => ({
+                    Country,
+                    value: d3.sum(filteredData.filter(d => d.Country === Country), d => d[metric])
+                }));
+
+                svg.append("path")
+                    .data([dataByMetric])
+                    .attr("fill", "none")
+                    .attr("stroke", color(metric))
+                    .attr("stroke-width", 2)
+                    .attr("stroke-linejoin", "round")
+                    .attr("stroke-linecap", "round")
+                    .attr("class", "line")
+                    .attr("d", line);
+            });
+
+            const legend = svg.append("g")
+                .attr("transform", `translate(${width - marginRight}, ${marginTop})`);
+
+            metrics.forEach((metric, i) => {
+                legend.append("rect")
+                    .attr("x", 0)
+                    .attr("y", i * 20)
+                    .attr("width", 10)
+                    .attr("height", 10)
+                    .attr("fill", color(metric));
+
+                legend.append("text")
+                    .attr("x", 15)
+                    .attr("y", i * 20 + 10)
+                    .attr("fill", color(metric))
+                    .attr("class", "legend")
+                    .text(metric);
+            });
+        });
+    </script>
+</body>
+<script src="./js/navbar.js"></script>
+
+
+</html>

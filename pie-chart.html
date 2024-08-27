@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Visualization - COVID-19</title>
+    <link rel="stylesheet" href="./css/styles.css">
+</head>
+
+<body>
+    <h1>COVID-19 Data Visualizations</h1>
+    <div id="navbar-container"></div>
+
+
+    <div class="container">
+        <p class="std-name">Kanvi Shah (8911805)</p>
+        <h2>Death Ratio Due to COVID-19 Based on Countries</h2>
+        <div class="filter-buttons">
+            <button id="top10-btn-pie">Top 10 Deaths</button>
+            <button id="top20-btn-pie">Top 20 Deaths</button>
+            <button id="top30-btn-pie">Top 30 Deaths</button>
+            <button id="top40-btn-pie">Top 40 Deaths</button>
+        </div>
+
+        <div id="pie-chart" class="chart"></div>
+    </div>
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="../js/navigation.js"></script>
+    <script src="../js/pie-chart.js"></script>
+    <script src="./js/navbar.js"></script>
+
+</body>
+
+</html>

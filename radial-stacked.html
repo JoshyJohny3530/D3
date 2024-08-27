@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radial Stacked Bar Chart</title>
+    <link rel="stylesheet" href="./css/styles.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        svg {
+            display: block;
+            margin: auto;
+        }
+
+        #legend {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 0;
+            list-style-type: none;
+            gap: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 0 10px;
+            flex-wrap: wrap;
+        }
+
+        .legend-color {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Radial Stacked Bar Chart</h1>
+    <div id="navbar-container"></div>
+
+    <div class="container">
+        <p class="std-name">Karan Bhavsar (8840509)</p>
+        <div id="chart"></div>
+        <ul id="legend"></ul>
+    </div>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="./js/script_radial.js"></script>
+</body>
+<script src="./js/navbar.js"></script>
+
+
+</html>

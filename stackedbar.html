@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Diverging Stacked Bar Chart - COVID-19</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="./css/styles.css">
+    <style>
+        .bar {
+            fill-opacity: 0.8;
+        }
+
+        .bar rect {
+            stroke-width: 1;
+            stroke: #333;
+        }
+
+        .label {
+            font-size: 12px;
+            text-anchor: start;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>COVID-19 Data Visualizations</h1>
+    <div id="navbar-container"></div>
+    <div class="container-slack">
+        <p class="std-name">Joshy Johny (8857731)</p>
+        <div id="chart"></div>
+    </div>
+
+    <script>
+        const width = 928;
+        const marginTop = 40;
+        const marginRight = 30;
+        const marginBottom = 0;
+        const marginLeft = 80;
+
+        d3.csv("./data/covid_data.csv").then(data => {
+            data.forEach(d => {
+                d.Confirmed = +d.Confirmed;
+                d.Deaths = +d.Deaths;
+                d.Recovered = +d.Recovered;
+                d.DeathsPercentage = (d.Deaths / d.Confirmed) * 100;
+                d.RecoveredPercentage = (d.Recovered / d.Confirmed) * 100;
+            });
+
+            const countries = Array.from(new Set(data.map(d => d.Country)));
+            const categories = ["DeathsPercentage", "RecoveredPercentage"];
+            const signs = new Map([["DeathsPercentage", -1], ["RecoveredPercentage", 1]]);
+
+            const bias = d3.sort(
+                d3.rollup(data, v => d3.sum(v, d => d.DeathsPercentage * Math.min(0, signs.get("DeathsPercentage"))), d => d.Country),
+                ([, a]) => a
+            );
+
+            const height = bias.length * 33 + marginTop + marginBottom;
+
+            const x = d3.scaleLinear()
+                .domain([-100, 100])
+                .rangeRound([marginLeft, width - marginRight]);
+
+            const y = d3.scaleBand()
+                .domain(bias.map(([name]) => name))
+                .rangeRound([marginTop, height - marginBottom])
+                .padding(2 / 33);
+
+            const color = d3.scaleOrdinal()
+                .domain(categories)
+                .range(["#d73027", "#1a9850"]);
+
+            const series = d3.stack()
+                .keys(categories)
+                .value(([, value], category) => signs.get(category) * (value[category] || 0))
+                .offset(d3.stackOffsetDiverging)
+                (Array.from(d3.rollup(data, d => ({
+                    DeathsPercentage: d3.mean(d, d => d.DeathsPercentage),
+                    RecoveredPercentage: d3.mean(d, d => d.RecoveredPercentage)
+                }), d => d.Country).entries()));
+
+            const svg = d3.select("#chart").append("svg")
+                .attr("viewBox", [0, 0, width, height])
+                .attr("style", "max-width: 100%; height: auto; font: 10px sans-serif;");
+
+            svg.append("g")
+                .selectAll("g")
+                .data(series)
+                .join("g")
+                .attr("fill", d => color(d.key))
+                .selectAll("rect")
+                .data(d => d.map(v => Object.assign(v, { key: d.key })))
+                .join("rect")
+                .attr("x", d => x(d[0]))
+                .attr("y", ({ data: [name] }) => y(name))
+                .attr("width", d => x(d[1]) - x(d[0]))
+                .attr("height", y.bandwidth())
+                .append("title")
+                .text(({ key, data: [name, value] }) => `${name}: ${value[key]}% ${key}`);
+
+            svg.append("g")
+                .attr("transform", `translate(0,${marginTop})`)
+                .call(d3.axisTop(x)
+                    .ticks(width / 80)
+                    .tickFormat(d3.format(".0f"))
+                    .tickSizeOuter(0))
+                .call(g => g.select(".domain").remove())
+                .call(g => g.append("text")
+                    .attr("x", x(0) + 20)
+                    .attr("y", -24)
+                    .attr("fill", "currentColor")
+                    .attr("text-anchor", "start")
+                    .text("Recovered Cases"))
+                .call(g => g.append("text")
+                    .attr("x", x(0) - 20)
+                    .attr("y", -24)
+                    .attr("fill", "currentColor")
+                    .attr("text-anchor", "end")
+                    .text("Deaths"));
+
+            svg.append("g")
+                .call(d3.axisLeft(y).tickSizeOuter(0))
+                .call(g => g.selectAll(".tick").data(bias).attr("transform", ([name, min]) => `translate(${x(min)},${y(name) + y.bandwidth() / 2})`))
+                .call(g => g.select(".domain").attr("transform", `translate(${x(0)},0)`));
+        });
+    </script>
+</body>
+<script src="./js/navbar.js"></script>
+
+
+</html>

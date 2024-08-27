@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scatterplot Matrix</title>
+    <link rel="stylesheet" href="./css/styles.css">
+
+    <style>
+        .cell {
+            cursor: pointer;
+        }
+
+        .separator {
+            stroke: black;
+            stroke-width: 1;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: #fff;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            opacity: 0;
+        }
+
+        .x.axis text,
+        .y.axis text {
+            font-size: 12px;
+        }
+
+        .x.label,
+        .y.label {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .chart-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>COVID-19 Data Visualizations</h1>
+    <div id="navbar-container"></div>
+
+    <div class="container">
+        <p class="std-name">Karan Bhavsar (8840509)</p>
+        <div id="data-type-container">
+            <label for="data-type">X-Axis:</label>
+            <select id="x-select">
+                <option value="Confirmed">Confirmed</option>
+                <option value="Deaths">Deaths</option>
+                <option value="Recovered">Recovered</option>
+                <option value="New cases">New cases</option>
+            </select>
+        </div>
+        <div id="data-type-container">
+            <label for="data-type">Y-Axis:</label>
+            <select id="y-select">
+                <option value="Confirmed">Confirmed</option>
+                <option value="Deaths">Deaths</option>
+                <option value="Recovered">Recovered</option>
+                <option value="New cases">New cases</option>
+            </select>
+        </div>
+        <div id="chart"></div>
+    </div>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="./js/script_scatter.js"></script>
+</body>
+<script src="./js/navbar.js"></script>
+
+</html>

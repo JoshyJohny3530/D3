@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>COVID-19 World Map</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="./css/styles.css">
+</head>
+
+<body>
+    <h1>COVID-19 Data Visualizations</h1>
+    <div id="navbar-container"></div>
+
+    <div class="container">
+        <p class="std-name">Nibin M (8890966)</p>
+        <div id="data-type-container">
+            <label for="data-type">Select Data Type:</label>
+            <select id="data-type">
+                <option value="confirmed">Confirmed Cases</option>
+                <option value="deaths">Deaths</option>
+                <option value="recovered">Recovered</option>
+            </select>
+        </div>
+        <div id="map"></div>
+        <div id="legend"></div>
+    </div>
+
+    <div class="tooltip" style="opacity:0;"></div>
+
+
+
+    <style>
+        .tooltip {
+            position: absolute;
+            padding: 5px;
+            background-color: white;
+            border: 1px solid #333;
+            pointer-events: none;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+        }
+    </style>
+    <script src="./js/map.js"></script>
+    <script src="./js/navbar.js"></script>
+</body>
+
+</html>
